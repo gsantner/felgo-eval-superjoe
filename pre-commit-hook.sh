@@ -22,4 +22,4 @@ rm -rf doc-tutorial
 mkdir doc-tutorial
 cp ../gsantner-net/_drafts/2018-02-16-vplay-tutorial.md doc-tutorial/
 cp -R ../gsantner-net/assets/blog/img/vplay-tutorial doc-tutorial/tutorial-assets
-
+git add doc-tutorial
