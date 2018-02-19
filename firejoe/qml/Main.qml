@@ -25,7 +25,7 @@ GameWindow {
         // listen to the button signals of the scene and change the state according to it
         onGameSelected: {
             // selectedLevel is the parameter of the levelPressed signal
-            gameScene.setLevel(selectedLevel)
+            gameScene.loadGame(game)
             window.state = "game"
         }
         onAboutSelected: window.state = "credits"
@@ -44,15 +44,6 @@ GameWindow {
         }
     }
 
-    // scene for selecting levels
-    SelectLevelScene {
-        id: selectLevelScene
-        onLevelPressed: {
-
-        }
-        onBackButtonPressed: window.state = "menu"
-    }
-
     // credits scene
     CreditsScene {
         id: creditsScene
@@ -62,7 +53,7 @@ GameWindow {
     // game scene to play a level
     GameScene {
         id: gameScene
-        onBackButtonPressed: window.state = "selectLevel"
+        onBackButtonPressed: window.state = "menu"
     }
 
     // Initial states
@@ -82,11 +73,6 @@ GameWindow {
             name: "menu"
             PropertyChanges {target: menuScene; opacity: 1}
             PropertyChanges {target: window; activeScene: menuScene}
-        },
-        State {
-            name: "selectLevel"
-            PropertyChanges {target: selectLevelScene; opacity: 1}
-            PropertyChanges {target: window; activeScene: selectLevelScene}
         },
         State {
             name: "credits"

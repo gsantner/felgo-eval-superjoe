@@ -1,111 +1,112 @@
 import VPlay 2.0
 import QtQuick 2.0
+import QtQuick.Layouts 1.2
 import "../common"
 
 SceneBase {
     id:gameScene
-    // the filename of the current level gets stored here, it is used for loading the
-    property string activeLevelFileName
-    // the currently loaded level gets stored here
-    property variant activeLevel
-    // score
-    property int score: 0
-    // countdown shown at level start
-    property int countdown: 0
-    // flag indicating if game is running
-    property bool gameRunning: countdown == 0
 
-    // set the name of the current level, this will cause the Loader to load the corresponding level
-    function setLevel(fileName) {
-        activeLevelFileName = fileName
+    property string activeGameFilepath      // Relative path to the game QML file to be loaded
+    property variant activeGame             // Object of the current active game
+    property int score: 0                   // Score of the current running game
+    property int gameStartCountdown: 0      // Countdown to begin the selected game
+    property int gamePlayingCountdown: 0    // Countdown till the game is over
+    property bool gameOver: false           // Tells if the game is over
+    property bool gameRunning: gameStartCountdown == 0 && !gameOver
+
+    // Game background - This time using an image
+    Image { source:"../../assets/img/bg1.png" ; anchors.fill:gameWindowAnchorItem }
+
+    Image {
+        source: activeGame !== undefined && activeGame !== null && activeGame.gameBackgroundOverlay !== undefined
+                ? "../../assets/img/" + activeGame.gameBackgroundOverlay : ""
+        anchors.fill: gameWindowAnchorItem
+        fillMode: Image.PreserveAspectFit
     }
 
-    // background
-    Rectangle {
-        anchors.fill: parent.gameWindowAnchorItem
-        color: "#dd94da"
-    }
-
-    // back button to leave scene
-    MenuButton {
-        text: "Back to menu"
-        // anchor the button to the gameWindowAnchorItem to be on the edge of the screen on any device
-        anchors.right: gameScene.gameWindowAnchorItem.right
-        anchors.rightMargin: 10
-        anchors.top: gameScene.gameWindowAnchorItem.top
-        anchors.topMargin: 10
-        onClicked: {
-            backButtonPressed()
-            activeLevel = undefined
-            activeLevelFileName = ""
-        }
-    }
-
-    // name of the current level
-    Text {
-        anchors.left: gameScene.gameWindowAnchorItem.left
-        anchors.leftMargin: 10
-        anchors.top: gameScene.gameWindowAnchorItem.top
-        anchors.topMargin: 10
-        color: "white"
-        font.pixelSize: 20
-        text: activeLevel !== undefined ? activeLevel.levelName : ""
-    }
-
-    // load levels at runtime
+    // Runtime loading of game - by loading QML Files from the games folder
+    function loadGame(gameNameInGamesFolder) { activeGameFilepath = gameNameInGamesFolder; }
     Loader {
         id: loader
-        source: activeLevelFileName != "" ? "../levels/" + activeLevelFileName : ""
+        source: activeGameFilepath != "" ? "../games/" + activeGameFilepath + ".qml" : ""
         onLoaded: {
-            // reset the score
-            score = 0
             // since we did not define a width and height in the level item itself, we are doing it here
-            item.width = gameScene.width
-            item.height = gameScene.height
+            item.width = gameScene.width ; item.height = gameScene.height
             // store the loaded level as activeLevel for easier access
-            activeLevel = item
-            // restarts the countdown
-            countdown = 3
+            activeGame = item
+
+            // Reset values
+            score = 0
+            gameStartCountdown = 3
         }
     }
 
-    // we connect the gameScene to the loaded level
+    // Singal connections from the game
     Connections {
-        // only connect if a level is loaded, to prevent errors
-        target: activeLevel !== undefined ? activeLevel : null
-        // increase the score when the rectangle is clicked
-        onRectanglePressed: {
-            // only increase score when game is running
+        target: activeGame !== undefined ? activeGame : null    // Do not connect if no game is loaded
+
+        // Increase the score by 1
+        onIncreaseScore: {
             if(gameRunning) {
                 score++
             }
         }
     }
 
-    // name of the current level
-    Text {
-        anchors.horizontalCenter: parent.horizontalCenter
+    RowLayout {
+        anchors.left: gameScene.gameWindowAnchorItem.left
+        anchors.right: gameScene.gameWindowAnchorItem.right
         anchors.top: gameScene.gameWindowAnchorItem.top
-        anchors.topMargin: 30
-        color: "white"
-        font.pixelSize: 40
-        text: score
+        anchors.margins: 10
+
+        // back button to leave scene
+        MenuButton {
+            text: "Back"
+            onClicked: {
+                backButtonPressed()
+                activeGame = undefined
+                activeGameFilepath = ""
+            }
+        }
+
+        Text {
+            Layout.fillWidth: true
+            text: activeGame !== undefined && activeGame !== null ? activeGame.gameName : ""
+            color: "brown"
+            font.bold: true
+            font.pixelSize: 20
+        }
+
+        Text {
+            Layout.fillWidth: true
+            color: "white"
+            font.pixelSize: 20
+            text: "Score: " + score + (gamePlayingCountdown <= 0 ? "" : ("Time: " + gamePlayingCountdown + "s"))
+        }
     }
 
-    // text displaying either the countdown or "tap!"
+    // Text displaying game status (Countdown / Game Over)
     Text {
         anchors.centerIn: parent
         color: "white"
-        font.pixelSize: countdown > 0 ? 160 : 18
-        text: countdown > 0 ? countdown : "tap!"
+        font.pixelSize: gameStartCountdown > 0 ? 160 : 80
+        text: {
+            if (gameStartCountdown > 0) {
+                return gameStartCountdown
+            }
+            if (gameOver) {
+                return "Game Over!\nScore:" + score
+            }
+            return ""
+        }
     }
 
-    // if the countdown is greater than 0, this timer is triggered every second, decreasing the countdown (until it hits 0 again)
+    // Countdown for the game to start
     Timer {
-        repeat: true
-        running: countdown > 0
+        repeat: true ; interval: 1000
+        running: gameStartCountdown > 0
         onTriggered: {
-            countdown--
+            gameStartCountdown--
         }
     }
 }

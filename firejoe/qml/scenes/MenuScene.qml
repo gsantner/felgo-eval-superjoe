@@ -2,7 +2,7 @@ import VPlay 2.0
 import QtQuick 2.0
 import "../common"
 
-// A scense based on SceneBase
+// A scene based on SceneBase
 SceneBase {
     id: menuScene
 
@@ -53,14 +53,14 @@ SceneBase {
         spacing: 10
         MenuButton {
             width: parent.width
-            text: "Play Timed"
-            onClicked: gameSelected("Level1")//level001-fire-timed")
+            text: "Play Endless"
+            onClicked: gameSelected("level001-fire-endless")
         }
 
         MenuButton {
             width: parent.width
-            text: "Play Endless"
-            onClicked: gameSelected("Level2")//level002-fire-endless")
+            text: "Play Timed"
+            onClicked: gameSelected("level002-fire-timed")
         }
 
         Row {

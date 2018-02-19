@@ -24,7 +24,7 @@ SceneBase {
 
     // credits
     Text {
-        text: "Credits to: YOU :)"
+        text: "Credits to: " + GameData.gameAuthor
         color: "white"
         anchors.centerIn: parent
     }

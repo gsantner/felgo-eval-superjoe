@@ -21,7 +21,7 @@ Common.LevelBase {
             onPressed: {
                 // every time the rectangle is pressed, we toggle its position by changing the horizontal offset from the center
                 rectangle.togglePosition = !rectangle.togglePosition
-                rectanglePressed()
+                increaseScore(1)
             }
         }
     }
