@@ -68,7 +68,8 @@ GameWindow {
     state: "menu"
     activeScene: menuScene
 
-    /* States to switch between
+    /*
+    // States to switch between
     // When entering a state it's PropertyChanges will be done
     // in order. When leaving a state the changed properties
     // will get reset to the values before the state was

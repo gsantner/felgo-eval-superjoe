@@ -105,6 +105,57 @@ The live client can be started by using button labeled LIVE and allows to select
 ## Project Archtiecture
 The selected project template comes already with good hierachy defaults and this is where I start off.
 
+* **common/MenuButton.qml - Custom Component**  
+This is a custom component to be used as a button.
+
+```
+import QtQuick 2.0
+
+// Inherit from Rectangle component - including all properties and signals
+Rectangle {
+    /*
+    // ID of this component - used inside this component
+    // When creating a new button using   MenuButton { id: coolButton }
+    // coolButton can be used outside to refer to the instance of the button
+    // Inside here, id "button" will still work and can be used to refer to self/this
+    */
+    id: button
+
+    // Setup custom properties (these are exposed additionally to the Rectangle ones)
+    property alias text: buttonText.text // Binds text property to buttonTexts text property
+    property int paddingHorizontal: 10
+    property int paddingVertical: 5
+
+    // Expose a signal, without arguments
+    signal clicked
+
+    // Make use of our new properties
+    width:  buttonText.width  + paddingHorizontal * 2
+    height: buttonText.height + paddingVertical * 2
+    color: "#e9e9e9"
+    radius: 10
+
+    // Display text inside the rectangle
+    Text {
+        id: buttonText
+        anchors.centerIn: parent
+        font.pixelSize: 18
+        color: "black"
+    }
+
+    // Make the Rectangle actually clickable
+    MouseArea {
+        id: mouseArea
+        anchors.fill: parent
+        hoverEnabled: true
+        onClicked: button.clicked() // Trigger the clicked signal of self
+        onPressed: button.opacity = 0.5
+        onReleased: button.opacity = 1
+    }
+}
+```
+
+
 * **Main.qml - Entrance point**  
 This is the main component of the app, which does handle navigation and command switchting between screens and states.
 
@@ -146,11 +197,11 @@ This is used as the root class for all scenes. The really important point in her
 Scene {
     id: sceneBase
 
-    opacity: 0           // Default invisible - changed by state in Main
-    visible: opacity > 0 // A boolean property telling the visibility of this scene
-    enabled: visible     // Opacity 0 would just mean transparent - visible false also skips rendering on this scene
+    opacity: 0              // Default invisible - changed by state in Main
+    visible: opacity > 0    // A boolean property telling the visibility of this scene
+    enabled: visible        // Opacity 0 would just mean transparent - visible false also skips rendering on this scene
 
-    Behavior on opacity {
+    Behavior on opacity {   // Always use animation when changing opacity
         NumberAnimation {
             property: "opacity"; easing.type: Easing.InOutQuad
         }
@@ -159,13 +210,101 @@ Scene {
 ```
 
 * **MenuScene.qml - Main Menu**  
-The actual visible UI of the main screen.
+
+The actual visible UI of the main screen. It will be used to start one of the two game modes (timed, endless), to switch difficulty and to get to the about scene.
 
 
+![Menu scene]({{ site.baseurl }}/assets/blog/img/vplay-tutorial/vplay-004.png)
 
+The communication to Main.qml happens via signals:
+```
+import VPlay 2.0
+import QtQuick 2.0
+import "../common"
 
-* qml/common: Common tools and functions, base components 
-* qml/levels: 
+// A scense based on SceneBase
+SceneBase {
+    id: menuScene
+
+    signal gameSelected(string level)               // Expose game selection with level
+    signal difficulyToggled()                       // Toggles the difficulty
+    signal aboutSelected()
+
+Add a nice red background and a picture of joe:
+```
+    // Add background color - using a fire red gradient
+    Rectangle {
+        anchors.fill: parent.gameWindowAnchorItem   // Fill the whole game window
+        gradient: Gradient {
+            GradientStop { position: 0.5; color: "#cb2d3e" }
+            GradientStop { position: 1.0; color: "#ef473a" }
+        }
+    }
+
+    // Show Joe as a boy - or his grown up form
+    Image {
+        source: GameData.currentDifficulty == "child" ? "../../assets/img/joe-01.png" : "../../assets/img/joe-02.png"
+        height: parent.height / 2
+        fillMode: Image.PreserveAspectFit
+        anchors.right: menuScene.gameWindowAnchorItem.right
+        anchors.rightMargin: 10 ; anchors.bottomMargin: -5
+        anchors.bottom: menuScene.gameWindowAnchorItem.bottom
+
+    }
+```
+
+Create a `Text` component showing the apps title, wrapped in a colored `Rectangle`:
+```
+    // Show the games title
+    Rectangle {
+        y: dp(32)
+        width: parent.width ; height: textTitle.height
+        anchors.horizontalCenter: parent.horizontalCenter
+        color: "darkgray"
+
+        Text {
+            id: textTitle
+            anchors.horizontalCenter: parent.horizontalCenter
+            font.pixelSize: 36
+            color: "white"
+            text: GameData.gameTitle
+            font.bold: true
+        }
+    }
+```
+
+Now menu options will get added. These will trigger signals which will be handled in Main.qml.
+```
+    // Show the menu
+    Column {
+        anchors.centerIn: parent
+        spacing: 10
+        MenuButton {
+            width: parent.width
+            text: "Play Timed"
+            onClicked: gameSelected("level001-fire-timed")
+        }
+
+        MenuButton {
+            width: parent.width
+            text: "Play Endless"
+            onClicked: gameSelected("level002-fire-endless")
+        }
+
+        Row {
+            spacing: 5
+            MenuButton {
+                text: GameData.currentDifficulty == "child" ? "Adult mode" : "Child mode"
+                onClicked: difficulyToggled()
+            }
+            MenuButton {
+                text: "About"
+                onClicked: aboutSelected()
+            }
+        }
+    }
+}
+```
 
 
 
