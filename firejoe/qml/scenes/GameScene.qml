@@ -10,19 +10,9 @@ SceneBase {
     property variant activeGame             // Object of the current active game
     property int score: 0                   // Score of the current running game
     property int gameStartCountdown: 0      // Countdown to begin the selected game
-    property int gamePlayingCountdown: 0    // Countdown till the game is over
+    property int gamePlayingCountdown: 50    // Countdown till the game is over
     property bool gameOver: false           // Tells if the game is over
     property bool gameRunning: gameStartCountdown == 0 && !gameOver
-
-    // Game background - This time using an image
-    Image { source:"../../assets/img/bg1.png" ; anchors.fill:gameWindowAnchorItem }
-
-    Image {
-        source: activeGame !== undefined && activeGame !== null && activeGame.gameBackgroundOverlay !== undefined
-                ? "../../assets/img/" + activeGame.gameBackgroundOverlay : ""
-        anchors.fill: gameWindowAnchorItem
-        fillMode: Image.PreserveAspectFit
-    }
 
     // Runtime loading of game - by loading QML Files from the games folder
     function loadGame(gameNameInGamesFolder) { activeGameFilepath = gameNameInGamesFolder; }
@@ -30,10 +20,9 @@ SceneBase {
         id: loader
         source: activeGameFilepath != "" ? "../games/" + activeGameFilepath + ".qml" : ""
         onLoaded: {
-            // since we did not define a width and height in the level item itself, we are doing it here
-            item.width = gameScene.width ; item.height = gameScene.height
-            // store the loaded level as activeLevel for easier access
+            // Make games data accessible after loading it
             activeGame = item
+            item.width = gameScene.width ; item.height = gameScene.height
 
             // Reset values
             score = 0
@@ -41,7 +30,7 @@ SceneBase {
         }
     }
 
-    // Singal connections from the game
+    // Signal connections from the game
     Connections {
         target: activeGame !== undefined ? activeGame : null    // Do not connect if no game is loaded
 
@@ -53,13 +42,30 @@ SceneBase {
         }
     }
 
+    // Game background - This time using an image
+    Image {
+        z: -1
+        source:"../../assets/img/bg1.png"
+        anchors.fill:gameWindowAnchorItem
+    }
+
+    // Game background - additional (maybe transparent) overlay, given by game
+    Image {
+        z: -1
+        source: activeGame !== undefined && activeGame !== null && activeGame.gameBackgroundOverlay !== undefined
+                ? "../../assets/img/" + activeGame.gameBackgroundOverlay : ""
+        anchors.fill: gameWindowAnchorItem
+        fillMode: Image.PreserveAspectFit
+    }
+
+    // Top information row
     RowLayout {
         anchors.left: gameScene.gameWindowAnchorItem.left
         anchors.right: gameScene.gameWindowAnchorItem.right
         anchors.top: gameScene.gameWindowAnchorItem.top
         anchors.margins: 10
 
-        // back button to leave scene
+        // Button to leave this game
         MenuButton {
             text: "Back"
             onClicked: {
@@ -69,19 +75,22 @@ SceneBase {
             }
         }
 
+        // Game title
         Text {
-            Layout.fillWidth: true
+            Layout.fillWidth: true // Adding fillWidth: true on the last two objects will split the available space to two
             text: activeGame !== undefined && activeGame !== null ? activeGame.gameName : ""
             color: "brown"
             font.bold: true
             font.pixelSize: 20
         }
 
+        // Score / Time
         Text {
+            horizontalAlignment: Text.AlignRight
             Layout.fillWidth: true
             color: "white"
-            font.pixelSize: 20
-            text: "Score: " + score + (gamePlayingCountdown <= 0 ? "" : ("Time: " + gamePlayingCountdown + "s"))
+            font.pixelSize: 18
+            text: "Score: " + score + (gamePlayingCountdown <= 0 ? "" : ("\nTime: " + gamePlayingCountdown + "s"))
         }
     }
 

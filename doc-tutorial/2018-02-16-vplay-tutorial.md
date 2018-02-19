@@ -93,8 +93,8 @@ The `App Idenfitier` will be the later package id, which has to be unique. This 
 For the `Interface Orientation` I choose `Landscape` since it will give more space for the `HUD`. In the next step V-Play Plugins can be added. In this case I chose none, because I want the game to be fully offline playable. In the last step a VCS can be setted up.
 
 
-## Starting the game
-Starting the game the first time is really easy when the project is properly configured (kits setted up). On the bottom left there are buttons for starting the project, starting in debug mode and for just building. The target device can be configure above these options. V-Play also developed a simple solution to try out the game and game changes immediatly after changing something - `V-Play Live Client`
+## Starting the application
+Starting the application the first time is really easy when the project is properly configured (kits setted up). On the bottom left there are buttons for starting the project, starting in debug mode and for just building. The target device can be configure above these options. V-Play also developed a simple solution to try out the game and game changes immediatly after changing something - `V-Play Live Client`
 
 The live client can be started by using button labeled LIVE and allows to select a single file (as entrence point) to load in a qmlviewer. The client will automatically reload when saving file changes to disk. This works on multiple devices simoutlanously. For Android an additional [app](https://play.google.com/store/apps/details?id=net.vplay.apps.QMLLive) has to be installed.
 
@@ -102,8 +102,9 @@ The live client can be started by using button labeled LIVE and allows to select
 ![Starting the project in V-Play Live Client]({{ site.baseurl }}/assets/blog/img/vplay-tutorial/vplay-003.png)
 
 
-# Project Archtiecture
-The selected project template comes already with good hierachy defaults and this is where I start off.
+# Setting up the application environment
+The selected project template comes already with a good project hierachy and application environment and this is where we start off. In this chapter we will deal with: Deploying + running an application, building an environment to choose between different mini-games and actually display a (mini-)game.
+
 
 ## First custom component - common/MenuButton.qml
 This is a custom component to be used as a button.
@@ -157,7 +158,7 @@ Rectangle {
 
 
 ## Entrance point - Main.qml
-This is the main component of the app, which does handle navigation and command switchting between screens and states.
+This is the main component of the application, which does handle navigation and command switchting between screens and states.
 
 ```
 GameWindow {
@@ -209,7 +210,7 @@ Scene {
 }
 ```
 
-## Main Menu - MenuScene.qml
+## Main Menu - scenes/MenuScene.qml
 
 The actual visible UI of the main screen. It will be used to start one of the two game modes (timed, endless), to switch difficulty and to get to the about scene.
 
@@ -232,7 +233,7 @@ SceneBase {
 
 ```
 
-Add a nice red background and a picture of joe:
+Add a nice red background and a picture of joe. The order of components **does matter**. Components defined more on bottom (code) are above the compontens defined before. This behaviour can be modified by setting the `z` property of an component. All components are by default on the `z: 0` level (_=/layer_). The same principle applies to all components having same `z` value.
 ```
     // Add background color - using a fire red gradient
     Rectangle {
@@ -309,16 +310,221 @@ Now menu options will get added. These will trigger signals which will be handle
 ```
 
 
+## Data used overall the game - common/GameData.qml
+This is intended as a compontent holding static data to be used overall in the game. To accomplish this, a single instance of a data container is needed. QML got you covered - with the ability to create Singletons.
+
+First we will create a new file named `GameData.qml`:
+```
+pragma Singleton
+import VPlay 2.0
+import QtQuick 2.0
+
+QtObject {
+    id: gameData
+
+    property string gameTitle: "Fire Joe"
+    property string gameAuthor: "Gregor Santner"
+
+    property string currentDifficulty: "child"
+}
+
+```
+As seen above, the file needs to have `pragma Singleton` in the level above the root item.
+
+To create a `Singleton` of a component, too a file named `qmldir` needs to be created in the same directory as the object. In qmldir all files have to be listed that should be made a singleton, including its exported name:
+
+```
+singleton GameData GameData.qml
+```
+
+
+## GameBase - common/GameBase.qml
+This component acts a common component of all playable games. It will provide information like the games name or the wanted background. It also provides a common way to communicate score changes or game over. These signals will later be handled by the `GameScene`.
+
+```
+import QtQuick 2.0
+
+Item {
+    property string gameName                // For displaying the game's name
+    property string gameBackgroundOverlay   // Image to be layed over the the background
+    property string isEndless               // Decides if gameTime counter goes up or down
+    signal increaseScore(int amount)        // Increase score by given amount
+    signal gameOver()                       // Trigger gameover from inside the game
+}
+```
+
+## Game UI - scene/GameScene
+This scene should provide the common UI for available games and methods to load a specific game.
+
+Lets start off with loading a game. The code below allows to load a specific game out of the games folder.
+If there is a file `qml/games/level001-fire-endless.qml` the method call will be `loadGame("level001-fire-endless")`.
+```
+import VPlay 2.0
+import QtQuick 2.0
+import QtQuick.Layouts 1.2
+import "../common"
+
+SceneBase {
+    id:gameScene
+
+    property string activeGameFilepath      // Relative path to the game QML file to be loaded
+    property variant activeGame             // Object of the current active game
+    property int score: 0                   // Score of the current running game
+    property int gameStartCountdown: 0      // Countdown to begin the selected game
+    property int gamePlayingCountdown: 0    // Countdown till the game is over
+    property bool gameOver: false           // Tells if the game is over
+    property bool gameRunning: gameStartCountdown == 0 && !gameOver
+
+    // Runtime loading of game - by loading QML Files from the games folder
+    function loadGame(gameNameInGamesFolder) { activeGameFilepath = gameNameInGamesFolder; }
+    Loader {
+        id: loader
+        source: activeGameFilepath != "" ? "../games/" + activeGameFilepath + ".qml" : ""
+        onLoaded: {
+            // Make games data accessible after loading it
+            activeGame = item
+            item.width = gameScene.width ; item.height = gameScene.height
+
+            // Reset values
+            score = 0
+            gameStartCountdown = 3
+        }
+    }
+```
+
+
+Next up is the actual connection to the GameBase instance. Currently the only implemented function is to increase the counter when the signal gets sent. It's always a good idea to check for unavailable game data:
+```
+    // Signal connections from the game
+    Connections {
+        target: activeGame !== undefined ? activeGame : null    // Do not connect if no game is loaded
+
+        // Increase the score by 1
+        onIncreaseScore: {
+            if(gameRunning) {
+                score++
+            }
+        }
+    }
+```
+
+Every game needs a well-polished background. The following adds a general background that is always on the most bottom layer. Additionally we will add a way to let the game decide about the background. As the game may not supply an additional background, this has to be carefully checked. We will set `z: -1` here to make sure backrounds are always on the very bottom.
+```
+    // Game background - This time using an image instead of a Gradient
+    Image {
+        z: -1
+        source:"../../assets/img/bg1.png"
+        anchors.fill: gameWindowAnchorItem
+    }
+
+    // Game background - additional (maybe transparent) overlay, given by game
+    Image {
+        z: -1
+        source: activeGame !== undefined && activeGame !== null && activeGame.gameBackgroundOverlay !== undefined
+                ? "../../assets/img/" + activeGame.gameBackgroundOverlay : ""
+        anchors.fill: gameWindowAnchorItem
+        fillMode: Image.PreserveAspectFit
+    }
+```
+
+To let the player know whats the current games status, we will add a information bar:
+```
+
+    // Top information row
+    RowLayout {
+        anchors.left: gameScene.gameWindowAnchorItem.left
+        anchors.right: gameScene.gameWindowAnchorItem.right
+        anchors.top: gameScene.gameWindowAnchorItem.top
+        anchors.margins: 10
+
+        // Button to leave this game
+        MenuButton {
+            text: "Back"
+            onClicked: {
+                backButtonPressed()
+                activeGame = undefined
+                activeGameFilepath = ""
+            }
+        }
 
+        // Game title
+        Text {
+            Layout.fillWidth: true // Adding fillWidth: true on the last two objects will split the available space to two
+            text: activeGame !== undefined && activeGame !== null ? activeGame.gameName : ""
+            color: "brown"
+            font.bold: true
+            font.pixelSize: 20
+        }
 
+        // Score / Time
+        Text {
+            Layout.fillWidth: true
+            color: "white"
+            font.pixelSize: 20
+            text: "Score: " + score + (gamePlayingCountdown <= 0 ? "" : ("Time: " + gamePlayingCountdown + "s"))
+        }
+    }
+```
+![Game information bar]({{ site.baseurl }}/assets/blog/img/vplay-tutorial/vplay-005.png)
 
 
+To finish the first draft of the GameScene we add a countdown. The player will see a big textfield with the time till the game starts. The QML `Timer` component allows to easily add time based functionalities to an application. `repeat` tells if the timer should give a oneshot or should keep running after the first trigger signal. The condition for keep running is set to `gameStartCountdown > 0`, which value will be decreased on every trigger. The countdown gets initalized to 3 when loading a game in the according function.
+```
+    // Text displaying game status (Countdown / Game Over)
+    Text {
+        anchors.centerIn: parent
+        color: "white"
+        font.pixelSize: gameStartCountdown > 0 ? 160 : 80
+        text: {
+            if (gameStartCountdown > 0) {
+                return gameStartCountdown
+            }
+            if (gameOver) {
+                return "Game Over!\nScore:" + score
+            }
+            return ""
+        }
+    }
 
+    // Countdown for the game to start
+    Timer {
+        repeat: true ; interval: 1000
+        running: gameStartCountdown > 0
+        onTriggered: {
+            gameStartCountdown--
+        }
+    }
+```
 
+### Implementation of an example level -- games/level001-fire-endless.qml
+This is an example game based upon the common `GameBase` created before. It has a single clickable element in the center which will increase the score upon press.
+ 
+```
+import QtQuick 2.0
+import VPlay 2.0
+import "../common" as Common
 
+Common.GameBase {
+    gameName: "Endless"
+    gameBackgroundOverlay: "fg1.png"
 
+    Rectangle {
+        anchors.centerIn: parent
+        width: 80 ; height: 80
+        color: "red"
+        radius: 40
+        MouseArea {
+            anchors.fill: parent
+            onPressed: increaseScore(1)
+        }
+    }
+}
+```
 
+![Example level implementation]({{ site.baseurl }}/assets/blog/img/vplay-tutorial/vplay-006.png)
 
+### Conclusion
+This was part one of the tutorial: Deploying + running an application, building an environment to choose between different mini-games and actually display a (mini-)game. The next part will deal with actually making a useable application out of it :).
 
 
 
@@ -367,16 +573,5 @@ Now menu options will get added. These will trigger signals which will be handle
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+## post - bottom anchor
 
