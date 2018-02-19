@@ -15,7 +15,7 @@ categories: qt
 Resources: [Qt-5 docs](https://doc.qt.io/qt-5/index.html) , [V-Play docs](https://v-play.net/doc/), [OpenClipArt](https://openclipart.org/)
 
 
-### V-Play Setup on Arch Linux
+# V-Play Setup on Arch Linux
 It's very easy to get started, download the package from <https://v-play.net/download/>, unpack and run the `*.run` executable. The `qt5-base` package is already installed on my system so the needed system libraries are installed too <small>(toolchain packaged on arch repos and v-plays toolchain are both quite recent, therefore dependencies of both are fine)</small>. I registered for the free Personal Pricing plan and logged into V-Plays Qt Creator after installation.
 
 ![Startup project]({{ site.baseurl }}/assets/blog/img/vplay-tutorial/vplay-001.png)
@@ -59,7 +59,7 @@ Exec=xdg-open "https://openclipart.org/"
 
 
 
-## Project idea
+# Project idea
 My plan is to develop a game to be used by younger users of mobiles. Especially thinking of my younger neighbour who wants to join at the volunteer fire brigade at some point - this should be about one of a firefighters jobs, to blow out a fire.
 
 For this my goal is the following:
@@ -102,10 +102,10 @@ The live client can be started by using button labeled LIVE and allows to select
 ![Starting the project in V-Play Live Client]({{ site.baseurl }}/assets/blog/img/vplay-tutorial/vplay-003.png)
 
 
-## Project Archtiecture
+# Project Archtiecture
 The selected project template comes already with good hierachy defaults and this is where I start off.
 
-* **common/MenuButton.qml - Custom Component**  
+## First custom component - common/MenuButton.qml
 This is a custom component to be used as a button.
 
 ```
@@ -156,7 +156,7 @@ Rectangle {
 ```
 
 
-* **Main.qml - Entrance point**  
+## Entrance point - Main.qml
 This is the main component of the app, which does handle navigation and command switchting between screens and states.
 
 ```
@@ -190,7 +190,7 @@ GameWindow {
 }
 ```
 
-* **common/SceneBase.qml - Base class for scenes**  
+## Base class for scenes - common/SceneBase.qml
 This is used as the root class for all scenes. The really important point in here is setting the `opacity: 0` as initial value. When changing `opacity` to another value via a `PropertyChange` in the State-Machine and moving on to another state, this will reverted and therefore get invisible again.
 
 ```
@@ -209,7 +209,7 @@ Scene {
 }
 ```
 
-* **MenuScene.qml - Main Menu**  
+## Main Menu - MenuScene.qml
 
 The actual visible UI of the main screen. It will be used to start one of the two game modes (timed, endless), to switch difficulty and to get to the about scene.
 
@@ -226,9 +226,11 @@ import "../common"
 SceneBase {
     id: menuScene
 
-    signal gameSelected(string level)               // Expose game selection with level
+    signal gameSelected(string level)               // Expose game selection
     signal difficulyToggled()                       // Toggles the difficulty
     signal aboutSelected()
+
+```
 
 Add a nice red background and a picture of joe:
 ```

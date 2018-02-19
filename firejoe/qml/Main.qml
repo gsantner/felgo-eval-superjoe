@@ -23,8 +23,12 @@ GameWindow {
     MenuScene {
         id: menuScene
         // listen to the button signals of the scene and change the state according to it
-        onSelectLevelPressed: window.state = "selectLevel"
-        onCreditsPressed: window.state = "credits"
+        onGameSelected: {
+            // selectedLevel is the parameter of the levelPressed signal
+            gameScene.setLevel(selectedLevel)
+            window.state = "game"
+        }
+        onAboutSelected: window.state = "credits"
         // the menu scene is our start scene, so if back is pressed there we ask the user if he wants to quit the application
         onBackButtonPressed: {
             nativeUtils.displayMessageBox(qsTr("Really quit the game?"), "", 2);
@@ -44,9 +48,6 @@ GameWindow {
     SelectLevelScene {
         id: selectLevelScene
         onLevelPressed: {
-            // selectedLevel is the parameter of the levelPressed signal
-            gameScene.setLevel(selectedLevel)
-            window.state = "game"
 
         }
         onBackButtonPressed: window.state = "menu"

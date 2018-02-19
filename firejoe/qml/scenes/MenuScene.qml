@@ -4,10 +4,9 @@ import "../common"
 
 // A scense based on SceneBase
 SceneBase {
-    signal selectLevelPressed;signal creditsPressed //remove
     id: menuScene
 
-    signal gameSelected(string level)               // Expose game selection with level
+    signal gameSelected(string game)                // Expose game selection
     signal difficulyToggled()                       // Toggles the difficulty
     signal aboutSelected()
 
@@ -55,13 +54,13 @@ SceneBase {
         MenuButton {
             width: parent.width
             text: "Play Timed"
-            onClicked: gameSelected("level001-fire-timed")
+            onClicked: gameSelected("Level1")//level001-fire-timed")
         }
 
         MenuButton {
             width: parent.width
             text: "Play Endless"
-            onClicked: gameSelected("level002-fire-endless")
+            onClicked: gameSelected("Level2")//level002-fire-endless")
         }
 
         Row {
