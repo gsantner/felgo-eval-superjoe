@@ -2,21 +2,13 @@ import QtQuick 2.0
 import VPlay 2.0
 import QtQuick.Layouts 1.2
 import "../common" as Common
+import "../entities" as Entities
 
 Common.GameBase {
+    id: game
     gameName: "Endless"
     gameBackgroundOverlay: "fg1.png"
-
-    Rectangle {
-        anchors.centerIn: parent
-        width: 80 ; height: 80
-        color: "red"
-        radius: 40
-        MouseArea {
-            anchors.fill: parent
-            onPressed: increaseScore(1)
-        }
-    }
+    property variant currentItem: undefined
 
     Common.ActionBar {
         Row {
@@ -32,39 +24,104 @@ Common.GameBase {
             }
 
             Common.ActionItem {
+                id: actionWaterbomb
                 image: "../../assets/img/item-waterbomb.png"
                 cost: 1
+                scoreModifier: 1.5
+                damage: cost
+                isReady: resWater.countCurrent >= cost
+                isHighlighted: currentItem === this
+                onItemPressed: selectItem(actionWaterbomb)
             }
 
             Common.ActionItem {
+                id: actionBucket
                 image: "../../assets/img/item-bucket.png"
-                isReady: true
+                isReady: resWater.countCurrent >= cost
+                isHighlighted: currentItem === this
                 cost: 2
-                onItemPressed: {
-                    blowOutFire(cost, 0)
-                }
+                damage: cost
+                onItemPressed:  selectItem(actionBucket)
             }
 
             Common.ActionItem {
+                id: actionExtinguisher
                 image: "../../assets/img/item-extinguisher.png"
-                isHighlighted: true
+                isHighlighted: false
+                isReady: true
+                cost: 0
+                onItemPressed: {
+                    isReady = false;
+                    var abc = gameScene.getAllEntitiesByType("fire");
+                    increaseScore(abc.length);
+                    gameScene.entityManager.removeAllEntities();
+                }
             }
         }
     }
 
-    function blowOutFire(amount, multiplier){
-        increaseScore(amount * multiplier)
+    function selectItem(item){
+        if (resWater.countCurrent >= item.cost) {
+            currentItem = item;
+        }
     }
 
-    function addFire(){
+    function canDamageEnemy(entityType) {
+        return currentItem === undefined ? false : currentItem.damage > 0
+    }
 
+    function getEnemyDamage(enemyHealth) {
+        if (enemyHealth > 0 && currentItem !== undefined) {
+            resWater.countCurrent -= currentItem.cost;
+            return currentItem.damage;
+        }
+        return 0
+    }
+
+    function killedEnemy(entityType) {
+        increaseScore(1.0 * currentItem.scoreModifier)
+    }
+
+    function addFire(count){
+        for (var i=0; i < count; i++) {
+            gameScene.entityManager.createEntityFromEntityTypeAndVariationType({entityType: "fire"})
+        }
+        if (gameScene.getAllEntitiesByType("fire").length > 7) {
+            gameOver()
+        }
+    }
+
+    // Kill all enemies, but let all of them just score one point
+    function killAllEnemies(){
+        for(var otherId in gameScene.entityManager.getEntityArrayByType(entity.entityType)){
+            var otherEntity = gameScene.entityManager.getEntityById(entity.entityType + "_" + otherId)
+            if (otherEntity === undefined || otherEntity.x === 0 || otherEntity.y === 0) {
+                continue;
+            }
+            if (Math.abs(otherEntity.x - x) > sprite.width && Math.abs(otherEntity.y - y) > sprite.height ){
+                break;
+            }
+        }
+    }
+
+
+    Timer {
+        running: gameScene.gameRunning
+        repeat: true
+        interval: 580
+        onTriggered: {
+            if (resWater.countCurrent < resWater.countMax){
+                resWater.countCurrent++
+            }
+        }
     }
 
     Timer {
+        running: gameScene.gameRunning
         repeat: true
-        interval: 500
+        interval: 1200
         onTriggered: {
-            addFire()
+            addFire(1)
         }
     }
 }

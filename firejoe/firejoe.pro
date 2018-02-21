@@ -46,4 +46,5 @@ macx {
 DISTFILES += \
     qml/common/ActionBar.qml \
     qml/common/ActionItem.qml \
-    qml/common/ResourceBar.qml
+    qml/common/ResourceBar.qml \
+    qml/entities/FireEntity.qml

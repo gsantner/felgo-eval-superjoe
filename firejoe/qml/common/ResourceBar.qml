@@ -13,15 +13,16 @@ Item {
         GradientStop { position: 1.0; color: "#acb6e5" }
     }
 
+    rotation: barRotation
     height: parent.height
     width: 80
-    rotation: barRotation
 
     Column {
         // Repeat a bar multiple times
         Repeater {
-            model: item.countCurrent
+            model: item.countMax
             Rectangle {
+                visible: index < countCurrent
                 width: item.width; height: item.height / item.countMax
                 radius: width * 0.1
                 border.width: 1 ; border.color: item.borderColor

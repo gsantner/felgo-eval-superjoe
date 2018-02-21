@@ -8,7 +8,7 @@ SceneBase {
 
     property string activeGameFilepath      // Relative path to the game QML file to be loaded
     property variant activeGame             // Object of the current active game
-    property int score: 0                   // Score of the current running game
+    property double score: 0                // Score of the current running game
     property int gameStartCountdown: 0      // Countdown to begin the selected game
     property int gamePlayingCountdown: 50    // Countdown till the game is over
     property bool gameOver: false           // Tells if the game is over
@@ -20,13 +20,15 @@ SceneBase {
         id: loader
         source: activeGameFilepath != "" ? "../games/" + activeGameFilepath + ".qml" : ""
         onLoaded: {
+            // Reset values
+            gameOver = false
+            score = 0
+            gameStartCountdown = 3
+
             // Make games data accessible after loading it
             activeGame = item
             item.width = gameScene.width ; item.height = gameScene.height
 
-            // Reset values
-            score = 0
-            gameStartCountdown = 3
         }
     }
 
@@ -34,12 +36,20 @@ SceneBase {
     Connections {
         target: activeGame !== undefined ? activeGame : null    // Do not connect if no game is loaded
 
-        // Increase the score by 1
+        // Increase the score
         onIncreaseScore: {
             if(gameRunning) {
-                score++
+                score += amount
             }
         }
+
+        onGameOver: {
+            gameOver = true
+        }
+    }
+
+    onGameOverChanged: {
+        entityManager.removeAllEntities()
     }
 
     // Game background - This time using an image
@@ -56,6 +66,21 @@ SceneBase {
                 ? "../../assets/img/" + activeGame.gameBackgroundOverlay : ""
         anchors.fill: gameWindowAnchorItem
         fillMode: Image.PreserveAspectFit
+    }
+
+
+    // create and remove entities at runtime
+    property EntityManager entityManager: EntityManager{
+            entityContainer: gameScene
+            dynamicCreationEntityList: [
+              Qt.resolvedUrl("../entities/FireEntity.qml")
+            ]
+    }
+
+    onEnabledChanged: {
+        if (!enabled){
+            entityManager.removeAllEntities()
+        }
     }
 
     // Top information row
@@ -90,14 +115,14 @@ SceneBase {
             Layout.fillWidth: true
             color: "white"
             font.pixelSize: 18
-            text: "Score: " + score + (gamePlayingCountdown <= 0 ? "" : ("\nTime: " + gamePlayingCountdown + "s"))
+            text: "Score: " + Math.floor(score) + (gamePlayingCountdown <= 0 ? "" : ("\nTime: " + gamePlayingCountdown + "s"))
         }
     }
 
     // Text displaying game status (Countdown / Game Over)
     Text {
         anchors.centerIn: parent
-        color: "white"
+        color: "red"
         font.pixelSize: gameStartCountdown > 0 ? 160 : 80
         text: {
             if (gameStartCountdown > 0) {
@@ -117,5 +142,16 @@ SceneBase {
         onTriggered: {
             gameStartCountdown--
         }
+    }
+
+    function getAllEntitiesByType(entityType) {
+        var all = [];
+        for(var id in entityManager.getEntityArrayByType(entityType)) {
+            var entity = entityManager.getEntityById(entityType + "_" + id)
+            if (entity !== undefined && entity !== null){
+                all.push(entity)
+            }
+        }
+        return all;
     }
 }

@@ -4,7 +4,9 @@ import QtQuick 2.0
 Rectangle {
     id: actionItem
 
-    property int cost: 1 // Store how much resources this item takes
+    property int cost: 1            // Store how much resources this item takes
+    property int damage: 1          // Store how much damage this item deals
+    property double scoreModifier: 1   // Factor for calculating the score
     property bool isHighlighted: false
     property bool isReady: false
     property double itemSize: parent.height
@@ -32,6 +34,6 @@ Rectangle {
 
     MouseArea {
         anchors.fill: parent
-        onClicked: itemPressed()
+        onClicked: gameScene.gameRunning && isReady && itemPressed()
     }
 }

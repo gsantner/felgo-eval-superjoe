@@ -528,30 +528,193 @@ This was part one of the tutorial: Deploying + running an application, building 
 
 
 
+## Designing the game
+
+## Action Bar
+This component should be a bar on the bottom with actions (/=items) to choose from. We will add some actions to a instance of our new ActionBar component in the next step.
+
+```
+import VPlay 2.0
+import QtQuick 2.0
+
+Rectangle {
+    id: itemBar
+
+    property double barHeight: 52
+    property int barZ: 1
+
+    z: barZ
+    height: barHeight
+    anchors.left: parent.left ; anchors.right: parent.right
+    anchors.bottom: parent.bottom
+    anchors.margins: 12
+    radius: barHeight / 3 // Make corner radius dependent on height
+
+    gradient: Gradient {
+        GradientStop { position: 0.0; color: "#111111" }
+        GradientStop { position: 0.7; color: "#434341" }
+        GradientStop { position: 1.0; color: "#4C4743" }
+    }
+}
+```
+
+
+![ActionBar.qml]({{ site.baseurl }}/assets/blog/img/vplay-tutorial/vplay-007.png)
+
+
+### ActionItem
+This component must provide the click information to other objects. It too should be able to visualize selection (highlight state).
+
+Create a component in a squircle shape exposing properties and the selected signal:
+```
+import VPlay 2.0
+import QtQuick 2.0
+
+Rectangle {
+    id: actionItem
+
+    property int cost: 1 // Store how much resources this item takes
+    property bool isHighlighted: false
+    property bool isReady: false
+    property double itemSize: parent.height
+    property string image: ""
+
+    signal itemPressed
+
+    width: itemSize * (isHighlighted ? 1 : 0.8) ; height: width
+    anchors.verticalCenter: parent.verticalCenter
+
+    // Lets make a light squircle
+    radius: height * 0.4
+    color: "#bfbfbf"
+```
+
+The following allows to visualize the items state:
+```
+    // Make border dependent on the item state
+    border.color: isHighlighted ? "red" : (isReady ? "turquoise" : "transparent")
+    border.width: itemSize * 0.05
+```
+
+Add an picture to it's center and make the whole item clickable. Lets also forward the click signal:
+```
+    Image {
+        source: image
+        anchors.fill: parent
+        anchors.margins: parent.height * 0.1
+        fillMode: Image.PreserveAspectFit
+    }
+
+    MouseArea {
+        anchors.fill: parent
+        onClicked: itemPressed()
+    }
+}
+```
+
+### Putting the ActionBar into our game
+Lets add the newly created ActionBar to our game, including some actions:
+```
+    Common.ActionBar {
+        Row {
+            anchors.fill: parent
+            anchors.leftMargin: spacing
+            spacing: height * 0.2
+
+            Common.ActionItem {
+                image: "../../assets/img/item-waterbomb.png"
+                cost: 1
+            }
+
+            Common.ActionItem {
+                image: "../../assets/img/item-bucket.png"
+                isReady: true
+                cost: 2
+            }
+
+            Common.ActionItem {
+                image: "../../assets/img/item-extinguisher.png"
+                isHighlighted: true
+            }
+        }
+    }
+```
+
+### Water tank
+Lets add a water tank to our game, to show how much ressources are available. We will add this to the end of our ActionBar to save some screen space for the actual game area.
+
+We will create a reuseable `ResourceBar` Component for this:
+```
+import VPlay 2.0
+import QtQuick 2.0
+
+Item {
+    id: item
+
+    property int barRotation: 180 // To allow both, vertical and horizontal direction
+    property int countCurrent: 0
+    property int countMax: 5
+    property string borderColor: "gray"
+    property Gradient resourceGradient: Gradient {
+        GradientStop { position: 0.0; color: "#74ebd5" }
+        GradientStop { position: 1.0; color: "#acb6e5" }
+    }
+
+    height: parent.height
+    width: 80
+    rotation: barRotation
+
+    Column {
+```
+A Repeater will create the contained item multiple times, according to the count of `model`:
+```
+        // Repeat a bar multiple times
+        Repeater {
+            model: item.countCurrent
+            Rectangle {
+                visible: index < countCurrent
+                width: item.width; height: item.height / item.countMax
+                radius: width * 0.1
+                border.width: 1 ; border.color: item.borderColor
+                gradient: item.resourceGradient
+            }
+        }
+    }
+}
+```
+
+Let's add this to our ActionBar:
+```
+            Common.ResourceBar {
+                id: resWater
+                width: parent.height * 1.25
+                countCurrent: 5 // Lets start the game with 5
+                countMax: 15
+            }
+```
+
+![Game with ActionBar]({{ site.baseurl }}/assets/blog/img/vplay-tutorial/vplay-009.png)
+
+
+
+### Lets add some fire
+Now lets add some fire. For this we extend our `GameBase` by adding an `EntityManger` which is used to dynamically create our fire objects.
+
+```
+    EntityManager {
+        id: entityManager
+        entityContainer: parent
+    }
+```
 
 
 
 
 
 
+Aktueller Status (noch nicht im tutorial :) :
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+![Game with ActionBar]({{ site.baseurl }}/assets/blog/img/vplay-tutorial/vplay-010.png)
 
 
 
