@@ -8,6 +8,8 @@ Item {
     property int countCurrent: 0
     property int countMax: 5
     property string borderColor: "gray"
+
+    // Properties can also be initialized with an object
     property Gradient resourceGradient: Gradient {
         GradientStop { position: 0.0; color: "#74ebd5" }
         GradientStop { position: 1.0; color: "#acb6e5" }

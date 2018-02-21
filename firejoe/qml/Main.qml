@@ -1,6 +1,7 @@
 import VPlay 2.0
 import QtQuick 2.0
 import "scenes"
+import "common"
 
 GameWindow {
     id: window
@@ -37,6 +38,10 @@ GameWindow {
                 if(accepted && window.activeScene === menuScene)
                     Qt.quit()
             }
+        }
+
+        onDifficulyToggled: {
+            GameData.currentDifficulty = GameData.currentDifficulty == "child" ? "adult" : "child"
         }
     }
 

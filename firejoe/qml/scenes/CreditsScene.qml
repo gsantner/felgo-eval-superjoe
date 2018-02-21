@@ -5,27 +5,26 @@ import "../common"
 SceneBase {
     id:creditsScene
 
-    // background
     Rectangle {
         anchors.fill: parent.gameWindowAnchorItem
-        color: "#49a349"
+        gradient: Gradient {
+            GradientStop { position: 0.65; color: "#159957" }
+            GradientStop { position: 1.0; color: "#155799" }
+        }
     }
 
-    // back button to leave scene
     MenuButton {
         text: "Back"
-        // anchor the button to the gameWindowAnchorItem to be on the edge of the screen on any device
-        anchors.right: creditsScene.gameWindowAnchorItem.right
-        anchors.rightMargin: 10
+        anchors.margins: 10
         anchors.top: creditsScene.gameWindowAnchorItem.top
-        anchors.topMargin: 10
+        anchors.left: creditsScene.gameWindowAnchorItem.left
         onClicked: backButtonPressed()
     }
 
-    // credits
     Text {
-        text: "Credits to: " + GameData.gameAuthor
-        color: "white"
         anchors.centerIn: parent
+        horizontalAlignment: Text.AlignHCenter
+        text: "Game created by\n" + GameData.gameAuthor
+        color: "white"
     }
 }

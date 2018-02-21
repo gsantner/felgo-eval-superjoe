@@ -43,8 +43,4 @@ macx {
     ICON = macx/app_icon.icns
 }
 
-DISTFILES += \
-    qml/common/ActionBar.qml \
-    qml/common/ActionItem.qml \
-    qml/common/ResourceBar.qml \
-    qml/entities/FireEntity.qml
+DISTFILES +=

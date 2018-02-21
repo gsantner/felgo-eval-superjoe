@@ -1,5 +1,6 @@
 import VPlay 2.0
 import QtQuick 2.0
+import QtMultimedia 5.0
 import "../common"
 
 // A scene based on SceneBase
@@ -27,7 +28,14 @@ SceneBase {
         anchors.right: menuScene.gameWindowAnchorItem.right
         anchors.rightMargin: 10 ; anchors.bottomMargin: -5
         anchors.bottom: menuScene.gameWindowAnchorItem.bottom
+    }
 
+    // Play menu sound
+    SoundEffectVPlay {
+        muted: !menuScene.enabled
+        source: Qt.resolvedUrl("../../assets/sound/nature_fire_big.wav")
+        loops: SoundEffect.Infinite
+        autoPlay: true
     }
 
     // Show the games title
@@ -53,14 +61,14 @@ SceneBase {
         spacing: 10
         MenuButton {
             width: parent.width
-            text: "Play Endless"
-            onClicked: gameSelected("level001-fire-endless")
+            text: "Play Survival"
+            onClicked: gameSelected("Game001_Fire_Survival")
         }
 
         MenuButton {
             width: parent.width
-            text: "Play Timed"
-            onClicked: gameSelected("level002-fire-timed")
+            text: "Play TimeAttack"
+            onClicked: gameSelected("Game002_Fire_TimeAttack")
         }
 
         Row {
