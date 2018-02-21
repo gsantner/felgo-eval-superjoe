@@ -2,8 +2,8 @@
 layout: post
 title: "V-Play Tutorial"
 date: 2018-02-16 19:03:35
-tags: [dev, v-play, qt]
-#excerpt: 'Short text with markdown support'
+tags: [dev, v-play, qt, gaming]
+excerpt: 'Tutorial for creating a game using the V-Play engine'
 categories: qt
 #image: 'BASEURL/assets/blog/img/.png'
 #photos: 'BASEURL/assets/blog/img/.png'
@@ -11,9 +11,7 @@ categories: qt
 #permalink:
 ---
 
-**Notice:: WIP :: This document is work in progress.**  
-
-In this tutorial we will cover howto develop a simple game using the Qt based crossplatform solution [V-Play](https://v-play.net). We will start with some setup notes on a Linux machine. After that the tutorial will covert howto setup and run a sample project and howto actually make a real game out of it. You can find the full source code on [GitHub](https://github.com/gsantner/vplay-eval-superjoe).
+In this tutorial we will cover howto develop a simple game using the Qt based crossplatform solution [V-Play](https://v-play.net). We will start with some setup notes on a Linux machine. After that we will explore howto setup and run a sample project and howto actually make a real game out of it. You can find the full source code on [GitHub](https://github.com/gsantner/vplay-eval-superjoe).
 
 
 Resources: [Qt-5 docs](https://doc.qt.io/qt-5/index.html) , [V-Play docs](https://v-play.net/doc/), [OpenClipArt](https://openclipart.org/) | [Zapsplat (Sounds)](https://www.zapsplat.com/author/cc0/) |
@@ -43,17 +41,20 @@ The plan is to develop a game to be used by younger users of mobiles. Especially
   * Fire accelerator: Spawns some more fire, increases score
   * Beer: Double points for one fire. Clears the water tank
 
-**Naming hints:** A item will be further called a `Spell`, the reason is reuseability and to not mistakenly mix it up with the common QML type `Item`.
+**Naming hints:** An item will be further called a `Spell`, the reason is reuseability and to not mistakenly mix it up with the common QML type `Item`.
 The whole application will be a base to start various mini-games (depending on view and amount of reuse it may also be called a level). One such mini-game is named `Game`, the environment of it is the `GameScene`.
 The whole application will have its start point in `Main` where navigation between screens do happen. One of such screens/activities/windows is called a `Scene`. The main scene will be the `MenuScene` where the player can choose between options.
 
+# Preview
+Here is a preview of the game:
 
 <video controls>
   <source src="https://raw.githubusercontent.com/gsantner/gh_tmp/master/superjoe.webm" type="video/webm">
 Your browser does not support the video tag.
 </video> 
 
-
+In this tutorial files, directories and paths won't get described. You can see the targeted hierachy below:
+![Startup project]({{ site.baseurl }}/assets/blog/img/vplay-tutorial/vplay-000.png)
 
 
 
@@ -101,13 +102,13 @@ Exec=xdg-open "https://openclipart.org/"
 
 
 ## Setting up the project
-At Qt Creator click at the top menu: `File -> New File or project`. I chose `New - Empty V-Play 2 Project`. The list also contains a lot of other project templates which do include existing assets, logic and components. I gave the game the name `Super Joe`, the reason is that the main screen will have picture of a boy named Joe. Apart from the title I am going to use `superjoe` everywhere else as identifier. This includes the project name as this will be the name of the folder where the project will reside in. As Kits I selected the `V-Play Desktop` and `Android` Kit, as I want to try the game on both. For the latter the Android components must be installed, for this see the [V-Play Setup](#android_setup) chapter. 
+At Qt Creator click on the top menu: `File -> New File or project`. I chose `New - Empty V-Play 2 Project`. The list also contains a lot of other project templates which do include existing assets, logic and components. I gave the game the name `Super Joe`, the reason is that the main screen will have picture of a boy named Joe. Apart from the title I am going to use `superjoe` everywhere else as identifier. This includes the project name as this will be the name of the folder where the project will reside in. As Kits I selected the `V-Play Desktop` and `Android` Kit, as I want to try the game on both. For the latter the Android components must be installed, for this see the [V-Play Setup](#android_setup) chapter. 
 
 ![Project Creation]({{ site.baseurl }}/assets/blog/img/vplay-tutorial/vplay-002.png)
 
 The `App Idenfitier` will be the later package id, which has to be unique. This ID will be the one that will later identify the app e.g. on Google Play, when the game gets published. There always can be installed one app  one a Android device with this identifier. I will use `net.gsantner.superjoe` for this.
 
-For the `Interface Orientation` I choose `Landscape` since it will give more space for the `HUD`. In the next step V-Play Plugins can be added. In this case I chose none, because I want the game to be fully offline playable. In the last step a VCS can be setted up.
+For the `Interface Orientation` I chose `Landscape` since it will give more space for the HUD. In the next step V-Play Plugins can be added. In this case I chose none, because I want the game to be fully offline playable. In the last step a VCS can be setted up.
 
 
 
