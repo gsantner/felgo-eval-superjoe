@@ -8,7 +8,7 @@ Scene {
     visible: opacity > 0    // A boolean property telling the visibility of this scene
     enabled: visible        // Opacity 0 would just mean transparent - visible false also skips rendering on this scene
 
-    // Always use animation when opacity changes
+    // Always animate opacity changes
     Behavior on opacity {
         NumberAnimation {
             property: "opacity"; easing.type: Easing.InOutQuad

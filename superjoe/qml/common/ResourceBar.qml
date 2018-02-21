@@ -4,9 +4,9 @@ import QtQuick 2.0
 Item {
     id: item
 
-    property int barRotation: 180 // To allow both, vertical and horizontal direction
-    property int countCurrent: 0
-    property int countMax: 5
+    property int barRotation: 180       // To allow both, vertical and horizontal direction
+    property int countCurrent: 0        // The current amount of available resources
+    property int countMax: 5            // The maximum amount of ressources
     property string borderColor: "gray"
 
     // Properties can also be initialized with an object

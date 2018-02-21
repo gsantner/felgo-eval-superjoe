@@ -49,10 +49,6 @@ SceneBase {
         }
     }
 
-    onGameOverChanged: {
-        entityManager.removeAllEntities()
-    }
-
     // Game background - This time using an image
     Image {
         z: -1
@@ -69,18 +65,22 @@ SceneBase {
         fillMode: Image.PreserveAspectFit
     }
 
-
     // create and remove entities at runtime
-    property EntityManager entityManager: EntityManager{
+    property EntityManager entityManager: EntityManager {
             entityContainer: gameScene
             dynamicCreationEntityList: [
               Qt.resolvedUrl("../entities/FireEntity.qml")
             ]
     }
 
-    // Remove all entities when leaving a game
+    // Remove all entities when the game is over
+    onGameOverChanged: {
+        entityManager.removeAllEntities()
+    }
+
+    // Remove all entities when leaving the game
     onEnabledChanged: {
-        if (!enabled){
+        if (!enabled) {
             entityManager.removeAllEntities()
         }
     }
@@ -120,7 +120,7 @@ SceneBase {
         }
     }
 
-    // Text displaying game status (Countdown / Game Over)
+    // Big text displaying game status (Countdown / Game Over)
     Text {
         anchors.centerIn: parent
         color: "black"

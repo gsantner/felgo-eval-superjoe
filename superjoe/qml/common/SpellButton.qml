@@ -26,10 +26,6 @@ Rectangle {
     border.color: isHighlighted ? "red" : (isReady ? "turquoise" : "transparent")
     border.width: itemSize * 0.05
 
-    SoundEffectVPlay {
-        id: soundFx
-        source: sound !== undefined && sound !== "" ? Qt.resolvedUrl(sound.replace("ASSETSOUND", "../../assets/sound")) : ""
-    }
 
     Image {
         source: image !== undefined && image !== "" ? Qt.resolvedUrl(image.replace("ASSETIMG", "../../assets/img")) : ""
@@ -45,6 +41,11 @@ Rectangle {
     MouseArea {
         anchors.fill: parent
         onClicked: gameScene.gameRunning && isReady && spellCasted()
+    }
+
+    SoundEffectVPlay {
+        id: soundFx
+        source: sound !== undefined && sound !== "" ? Qt.resolvedUrl(sound.replace("ASSETSOUND", "../../assets/sound")) : ""
     }
 
     // Playback sound, dont overlap

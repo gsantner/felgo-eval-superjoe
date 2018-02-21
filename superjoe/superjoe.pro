@@ -43,4 +43,5 @@ macx {
     ICON = macx/app_icon.icns
 }
 
-DISTFILES +=
+DISTFILES += \
+    qml/games/Game000_Example.qml

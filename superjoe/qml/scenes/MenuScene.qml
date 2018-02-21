@@ -64,7 +64,7 @@ SceneBase {
         MenuButton {
             width: parent.width
             text: "Play Survival"
-            onClicked: gameSelected("Game001_Fire_Survival")
+            onClicked: gameSelected("Game000_Example")//"Game001_Fire_Survival")
         }
 
         MenuButton {
