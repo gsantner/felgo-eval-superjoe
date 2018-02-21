@@ -48,6 +48,10 @@ The whole application will be a base to start various mini-games (depending on v
 The whole application will have its start point in `Main` where navigation between screens do happen. One of such screens/activities/windows is called a `Scene`. The main scene will be the `MenuScene` where the player can choose between options.
 
 
+<video controls>
+  <source src="https://raw.githubusercontent.com/gsantner/gh_tmp/master/superjoe.webm" type="video/webm">
+Your browser does not support the video tag.
+</video> 
 
 
 
