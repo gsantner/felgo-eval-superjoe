@@ -81,14 +81,14 @@ For this my goal is the following:
 * Adult difficulty: Adds items
   * Fire accelerant: Tripple points for one fire. Spawns 2 more fire
   * Beer: Double points for one fire. Clears the water tank
-* Game Name?: Fire Joe
+* Game Name?: Super Joe
 
 ## Setting up the project
-At Qt Creator click at the top menu: `File -> New File or project`. I chose `New - Empty V-Play 2 Project`. The list also contains a lot of other project templates which do include existing assets, logic and components. I gave the game the name `Fire Joe`, the reason is that the main screen will have picture of a boy named Joe. Apart from the title I am going to use `firejoe` everywhere else as identifier. This includes the project name as this will be the name of the folder where the project will reside in. As Kits I selected the `V-Play Desktop` and `Android` Kit, as I want to try the game on both. For the latter the Android components must be installed, for this see the [V-Play Setup](#android_setup) chapter. 
+At Qt Creator click at the top menu: `File -> New File or project`. I chose `New - Empty V-Play 2 Project`. The list also contains a lot of other project templates which do include existing assets, logic and components. I gave the game the name `Super Joe`, the reason is that the main screen will have picture of a boy named Joe. Apart from the title I am going to use `superjoe` everywhere else as identifier. This includes the project name as this will be the name of the folder where the project will reside in. As Kits I selected the `V-Play Desktop` and `Android` Kit, as I want to try the game on both. For the latter the Android components must be installed, for this see the [V-Play Setup](#android_setup) chapter. 
 
 ![Project Creation]({{ site.baseurl }}/assets/blog/img/vplay-tutorial/vplay-002.png)
 
-The `App Idenfitier` will be the later package id, which has to be unique. This ID will be the one that will later identify the app e.g. on Google Play, when the game gets published. There always can be installed one app  one a Android device with this identifier. I will use `net.gsantner.firejoe` for this.
+The `App Idenfitier` will be the later package id, which has to be unique. This ID will be the one that will later identify the app e.g. on Google Play, when the game gets published. There always can be installed one app  one a Android device with this identifier. I will use `net.gsantner.superjoe` for this.
 
 For the `Interface Orientation` I choose `Landscape` since it will give more space for the `HUD`. In the next step V-Play Plugins can be added. In this case I chose none, because I want the game to be fully offline playable. In the last step a VCS can be setted up.
 
@@ -322,7 +322,7 @@ import QtQuick 2.0
 QtObject {
     id: gameData
 
-    property string gameTitle: "Fire Joe"
+    property string gameTitle: "Super Joe"
     property string gameAuthor: "Gregor Santner"
 
     property string currentDifficulty: "child"

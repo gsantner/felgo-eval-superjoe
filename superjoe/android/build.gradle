@@ -39,7 +39,7 @@ android {
     compileSdkVersion androidCompileSdkVersion.toInteger()
     buildToolsVersion androidBuildToolsVersion
 
-    defaultConfig.applicationId = 'net.gsantner.firejoe'
+    defaultConfig.applicationId = 'net.gsantner.superjoe'
 
     sourceSets {
         main {
