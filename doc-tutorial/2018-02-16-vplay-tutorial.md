@@ -12,8 +12,39 @@ categories: qt
 ---
 
 **Notice:: WIP :: This document is work in progress.**  
-Resources: [Qt-5 docs](https://doc.qt.io/qt-5/index.html) , [V-Play docs](https://v-play.net/doc/), [OpenClipArt](https://openclipart.org/)
 
+In this tutorial we will cover howto develop a simple game using the Qt based crossplatform solution [V-Play](https://v-play.net). We will start with some setup notes on a Linux machine. After that the tutorial will covert howto setup and run a sample project and howto actually make a real game out of it. You can find the full source code on [GitHub](https://github.com/gsantner/vplay-eval-superjoe).
+
+
+Resources: [Qt-5 docs](https://doc.qt.io/qt-5/index.html) , [V-Play docs](https://v-play.net/doc/), [OpenClipArt](https://openclipart.org/) | [Zapsplat (Sounds)](https://www.zapsplat.com/author/cc0/) |
+
+# Project idea
+The plan is to develop a game to be used by younger users of mobiles. Especially thinking of my younger neighbour who wants to join the volunteer fire brigade at some point - this should be about one of a firefighters jobs, to blow out a fire.
+
+* Game Name: Super Joe
+* Main-Screen
+  * Start game - Survival (endless)
+  * Start game - TimeAttack (countdown)
+  * Switch to adult difficulty
+  * About
+* Game principle
+  * Fire should spawn at random position on the game screen
+  * Ressource: Water
+  * Blow out fire by using various items
+  * Items: water bomb, water bucket, fire extinguisher
+  * Each item has a different ressource requirement
+  * Score: Each blown out fire scores points
+* Game modes
+  * In both modes (games), fire will spawn with some delay, when a certain amount is reached the game is over. The player must keep the count below this amount by using items on fires
+  * Survival Game: Game runs endless unless the player let too much fire alive. Each blown fire increases score
+  * TimeAttack Game: Limited time with countdown. Higher amount of allowed fires. Each blwon fire increases score, but the player must use items appropriately to score high
+* Adult difficulty
+  * Adds more items and therefore more options to score high
+  * Fire accelerator: Spawns some more fire, increases score
+  * Beer: Double points for one fire. Clears the water tank
+
+Note: A item will be further called a `Spell`, the reason is reuseability and to not mistakenly mix it up with the common QML type `Item`.
+The whole application will be a base to start various mini-games. One such mini-game is named `Game`, the environment of it is the `GameScene`.
 
 # V-Play Setup on Arch Linux
 It's very easy to get started, download the package from <https://v-play.net/download/>, unpack and run the `*.run` executable. The `qt5-base` package is already installed on my system so the needed system libraries are installed too <small>(toolchain packaged on arch repos and v-plays toolchain are both quite recent, therefore dependencies of both are fine)</small>. I registered for the free Personal Pricing plan and logged into V-Plays Qt Creator after installation.
@@ -57,32 +88,6 @@ Exec=xdg-open "https://openclipart.org/"
 <a name="android_setup"></a>I will too try my first V-Play application on an Android phone. For deployment, both Android [SDK](https://developer.android.com/studio/index.html) and [NDK](https://developer.android.com/ndk/index.html) are needed. They can be set in Qt Creator at `Menu-> Tools-> Devices-> Android`. Qt toolchain components need to be installed too, the needed Android parts can be downloaded using the `MaintenanceTool` executable, which resides in V-Plays root folder.
 
 
-
-
-# Project idea
-My plan is to develop a game to be used by younger users of mobiles. Especially thinking of my younger neighbour who wants to join at the volunteer fire brigade at some point - this should be about one of a firefighters jobs, to blow out a fire.
-
-For this my goal is the following:
-
-* Main-Screen
-  * Start game - timed
-  * Start game - endless
-  * Switch to adult difficulty
-  * About
-* Game principle
-  * Fire should spawn at random position on the game screen
-  * Ressource: Water
-  * Blow out fire by using various items
-  * Items: water bomb, water bucket, fire extinguisher, high pressure water beam
-  * Each item has a different ressource requirement (amount)
-  * Score: Each blown out fire scores points
-* Timed mode: Blow out everything before the time runs out. Fire will spawn with some delay till a certain amount is reached
-* Endless mode: Keep the amount of fire below a certain count. New fire keeps spawning
-* Adult difficulty: Adds items
-  * Fire accelerant: Tripple points for one fire. Spawns 2 more fire
-  * Beer: Double points for one fire. Clears the water tank
-* Game Name?: Super Joe
-
 ## Setting up the project
 At Qt Creator click at the top menu: `File -> New File or project`. I chose `New - Empty V-Play 2 Project`. The list also contains a lot of other project templates which do include existing assets, logic and components. I gave the game the name `Super Joe`, the reason is that the main screen will have picture of a boy named Joe. Apart from the title I am going to use `superjoe` everywhere else as identifier. This includes the project name as this will be the name of the folder where the project will reside in. As Kits I selected the `V-Play Desktop` and `Android` Kit, as I want to try the game on both. For the latter the Android components must be installed, for this see the [V-Play Setup](#android_setup) chapter. 
 
@@ -106,8 +111,8 @@ The live client can be started by using button labeled LIVE and allows to select
 The selected project template comes already with a good project hierachy and application environment and this is where we start off. In this chapter we will deal with: Deploying + running an application, building an environment to choose between different mini-games and actually display a (mini-)game.
 
 
-## First custom component - common/MenuButton.qml
-This is a custom component to be used as a button.
+## First custom component - MenuButton
+This is a custom component to be used as a button. On top are the import statements. We will include `QtQuick` and `VPlay` in most components.
 
 ```
 import QtQuick 2.0
@@ -135,7 +140,11 @@ Rectangle {
     height: buttonText.height + paddingVertical * 2
     color: "#e9e9e9"
     radius: 10
+```
 
+We will use the properties above to create a `Text` component, centered in the whole `MenuButton`. Additionally we want the whole component clickable (including a signal/callback). For this we add a `MouseArea` which forwards a click using the `onClicked` signal. The `MouseArea` should forward the click when we click anywhere inside the button, so we set `anchors.fill: parent` which makes the `MouseArea` fill the whole component.
+
+```
     // Display text inside the rectangle
     Text {
         id: buttonText
@@ -154,14 +163,17 @@ Rectangle {
         onReleased: button.opacity = 1
     }
 }
+
 ```
 
 
-## Entrance point - Main.qml
+## Entrance point - Main
 This is the main component of the application, which does handle navigation and command switchting between screens and states.
 
 ```
 GameWindow {
+    id: window
+
     // Implemented Scenes
     MenuScene { id: gameScene }
     GameScene { id: menuScene }
@@ -191,7 +203,7 @@ GameWindow {
 }
 ```
 
-## Base class for scenes - common/SceneBase.qml
+## Base class for scenes - SceneBase
 This is used as the root class for all scenes. The really important point in here is setting the `opacity: 0` as initial value. When changing `opacity` to another value via a `PropertyChange` in the State-Machine and moving on to another state, this will reverted and therefore get invisible again.
 
 ```
@@ -202,7 +214,8 @@ Scene {
     visible: opacity > 0    // A boolean property telling the visibility of this scene
     enabled: visible        // Opacity 0 would just mean transparent - visible false also skips rendering on this scene
 
-    Behavior on opacity {   // Always use animation when changing opacity
+    // Always use animation when opacity changes
+    Behavior on opacity {
         NumberAnimation {
             property: "opacity"; easing.type: Easing.InOutQuad
         }
@@ -210,9 +223,37 @@ Scene {
 }
 ```
 
-## Main Menu - scenes/MenuScene.qml
+## Data used overall the game - GameData
+This is intended as a compontent holding static data to be used overall in the game. To accomplish this, a single instance of a data container is needed. QML got you covered - with the ability to create Singletons.
 
-The actual visible UI of the main screen. It will be used to start one of the two game modes (timed, endless), to switch difficulty and to get to the about scene.
+First we will create a new file named `GameData.qml`:
+```
+pragma Singleton
+import VPlay 2.0
+import QtQuick 2.0
+
+QtObject {
+    id: gameData
+
+    property string gameTitle: "Super Joe"
+    property string gameAuthor: "Gregor Santner"
+
+    // We will add support for two modes, child and adult
+    property string currentDifficulty: "child"
+}
+```
+As seen above, the file needs to have `pragma Singleton` in the same level as the root item.
+
+To create a `Singleton` of a component, too a file named `qmldir` needs to be created in the same directory as the object. In qmldir all files have to be listed that should be made a singleton, including its exported component name:
+
+```
+singleton GameData GameData.qml
+```
+
+
+## Main Menu - MenuScene
+
+The actual visible UI of the main screen. It will allow us to start one of the two game modes (Survival, TimeAttack), to switch difficulty and to get to the about scene.
 
 
 ![Menu scene]({{ site.baseurl }}/assets/blog/img/vplay-tutorial/vplay-004.png)
@@ -221,16 +262,16 @@ The communication to Main.qml happens via signals:
 ```
 import VPlay 2.0
 import QtQuick 2.0
-import "../common"
+import QtMultimedia 5.0
+import "../common" // Relative import - All components inside the ../common folder get available
 
-// A scense based on SceneBase
+// A scene based on SceneBase
 SceneBase {
     id: menuScene
 
-    signal gameSelected(string level)               // Expose game selection
-    signal difficulyToggled()                       // Toggles the difficulty
-    signal aboutSelected()
-
+    signal gameSelected(string game)    // Expose game selection
+    signal difficulyToggled()           // Toggles the difficulty
+    signal aboutSelected()              // Switch to about screen
 ```
 
 Add a nice red background and a picture of joe. The order of components **does matter**. Components defined more on bottom (code) are above the compontens defined before. This behaviour can be modified by setting the `z` property of an component. All components are by default on the `z: 0` level (_=/layer_). The same principle applies to all components having same `z` value.
@@ -252,11 +293,21 @@ Add a nice red background and a picture of joe. The order of components **does m
         anchors.right: menuScene.gameWindowAnchorItem.right
         anchors.rightMargin: 10 ; anchors.bottomMargin: -5
         anchors.bottom: menuScene.gameWindowAnchorItem.bottom
-
     }
 ```
 
-Create a `Text` component showing the apps title, wrapped in a colored `Rectangle`:
+V-Plays basic components also include a simple way to play audio files:
+```
+    // Play sound when menu screen is open
+    SoundEffectVPlay {
+        muted: !menuScene.enabled
+        source: Qt.resolvedUrl("../../assets/sound/nature_fire_big.wav")
+        loops: SoundEffect.Infinite
+        autoPlay: true
+    }
+```
+
+Create a `Text` component showing the apps title, wrapped in a colored `Rectangle`. This will add a label with an colored stripe as background.
 ```
     // Show the games title
     Rectangle {
@@ -276,26 +327,30 @@ Create a `Text` component showing the apps title, wrapped in a colored `Rectangl
     }
 ```
 
-Now menu options will get added. These will trigger signals which will be handled in Main.qml.
+Now menu options will get added. These options will trigger signals which again will be handled in Main.qml.
 ```
     // Show the menu
     Column {
         anchors.centerIn: parent
         spacing: 10
+
+        // Sends Main the signal to start specified game
         MenuButton {
             width: parent.width
-            text: "Play Timed"
-            onClicked: gameSelected("level001-fire-timed")
+            text: "Play Survival"
+            onClicked: gameSelected("Game001_Fire_Survival")
         }
 
         MenuButton {
             width: parent.width
-            text: "Play Endless"
-            onClicked: gameSelected("level002-fire-endless")
+            text: "Play TimeAttack"
+            onClicked: gameSelected("Game002_Fire_TimeAttack")
         }
 
         Row {
             spacing: 5
+
+            // Allows to switch between the supported 2 difficulties
             MenuButton {
                 text: GameData.currentDifficulty == "child" ? "Adult mode" : "Child mode"
                 onClicked: difficulyToggled()
@@ -308,35 +363,6 @@ Now menu options will get added. These will trigger signals which will be handle
     }
 }
 ```
-
-
-## Data used overall the game - common/GameData.qml
-This is intended as a compontent holding static data to be used overall in the game. To accomplish this, a single instance of a data container is needed. QML got you covered - with the ability to create Singletons.
-
-First we will create a new file named `GameData.qml`:
-```
-pragma Singleton
-import VPlay 2.0
-import QtQuick 2.0
-
-QtObject {
-    id: gameData
-
-    property string gameTitle: "Super Joe"
-    property string gameAuthor: "Gregor Santner"
-
-    property string currentDifficulty: "child"
-}
-
-```
-As seen above, the file needs to have `pragma Singleton` in the level above the root item.
-
-To create a `Singleton` of a component, too a file named `qmldir` needs to be created in the same directory as the object. In qmldir all files have to be listed that should be made a singleton, including its exported name:
-
-```
-singleton GameData GameData.qml
-```
-
 
 ## GameBase - common/GameBase.qml
 This component acts a common component of all playable games. It will provide information like the games name or the wanted background. It also provides a common way to communicate score changes or game over. These signals will later be handled by the `GameScene`.

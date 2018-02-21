@@ -1,15 +1,15 @@
 import VPlay 2.0
 import QtQuick 2.0
 import QtMultimedia 5.0
-import "../common"
+import "../common" // Relative import - All components inside the ../common folder get available
 
 // A scene based on SceneBase
 SceneBase {
     id: menuScene
 
-    signal gameSelected(string game)                // Expose game selection
-    signal difficulyToggled()                       // Toggles the difficulty
-    signal aboutSelected()
+    signal gameSelected(string game)    // Expose game selection
+    signal difficulyToggled()           // Toggles the difficulty
+    signal aboutSelected()              // Switch to about screen
 
     // Add background color - using a fire red gradient
     Rectangle {
@@ -30,7 +30,7 @@ SceneBase {
         anchors.bottom: menuScene.gameWindowAnchorItem.bottom
     }
 
-    // Play menu sound
+    // Play sound when menu screen is open
     SoundEffectVPlay {
         muted: !menuScene.enabled
         source: Qt.resolvedUrl("../../assets/sound/nature_fire_big.wav")
@@ -59,6 +59,8 @@ SceneBase {
     Column {
         anchors.centerIn: parent
         spacing: 10
+
+        // Sends Main the signal to start specified game
         MenuButton {
             width: parent.width
             text: "Play Survival"
@@ -73,6 +75,8 @@ SceneBase {
 
         Row {
             spacing: 5
+
+            // Allows to switch between the supported 2 difficulties
             MenuButton {
                 text: GameData.currentDifficulty == "child" ? "Adult mode" : "Child mode"
                 onClicked: difficulyToggled()

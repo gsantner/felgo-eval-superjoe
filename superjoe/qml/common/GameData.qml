@@ -8,5 +8,6 @@ QtObject {
     property string gameTitle: "Super Joe"
     property string gameAuthor: "Gregor Santner"
 
+    // We will add support for two modes, child and adult
     property string currentDifficulty: "child"
 }
