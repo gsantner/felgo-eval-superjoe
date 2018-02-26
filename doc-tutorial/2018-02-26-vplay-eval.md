@@ -1,9 +1,9 @@
 ---
 layout: post
-title: "V-Play Tutorial"
-date: 2018-02-16 19:03:35
+title: "V-Play Evaluation"
+date: 2018-02-26 19:30:00
 tags: [dev, v-play, qt, gaming]
-excerpt: 'Tutorial for creating a game using the V-Play engine'
+excerpt: 'Evaluation of the Qt based <a href="https://v-play.net"/>V-Play</a> framework / Tutorial for creating a game using the V-Play Game Engine'
 categories: qt
 #image: 'BASEURL/assets/blog/img/.png'
 #photos: 'BASEURL/assets/blog/img/.png'
