@@ -1,6 +1,6 @@
-# vplay-eval-superjoe
+# felgo-eval-superjoe
 
-Evaluation of the Qt based [V-Play](https://v-play.net) framework / Tutorial for creating a game using the V-Play Game Engine
+Evaluation of the Qt based [Felgo](https://felgo.com/)  / Tutorial for creating a game using the Felgo SDK
 
 
 Documentation / Tutorial: <https://gsantner.net/blog/qt/2018/02/26/vplay-eval.html>  
