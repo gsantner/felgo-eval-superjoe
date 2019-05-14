@@ -1,17 +1,18 @@
 buildscript {
     repositories {
+        maven { url 'https://maven.google.com' }
         jcenter()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.3'
+        classpath 'com.android.tools.build:gradle:3.2.1'
     }
 }
 
 allprojects {
     repositories {
-        jcenter()
         maven { url 'https://maven.google.com' }
+        jcenter()
         maven { url 'https://sdk.v-play.net/maven/' }
     }
 }
