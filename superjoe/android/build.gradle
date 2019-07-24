@@ -37,10 +37,15 @@ android {
      * Changing them manually might break the compilation!
      *******************************************************/
 
-    compileSdkVersion androidCompileSdkVersion.toInteger()
-    buildToolsVersion androidBuildToolsVersion
+    compileSdkVersion    androidCompileSdkVersion.toInteger()
+    buildToolsVersion    androidBuildToolsVersion
 
-    defaultConfig.applicationId = 'net.gsantner.superjoe'
+    defaultConfig {
+      targetSdkVersion   androidCompileSdkVersion.toInteger()
+      applicationId    = productIdentifier
+      versionCode      = productVersionCode.toInteger()
+      versionName      = productVersionName
+    }
 
     sourceSets {
         main {
