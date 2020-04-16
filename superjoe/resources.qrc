@@ -2,8 +2,12 @@
     <qresource prefix="/">
         <file>qml</file>
         <file>qml/common</file>
+        <file>qml/games</file>
         <file>qml/scenes</file>
         <file>qml/levels</file>
+        <file>assets</file>
+        <file>assets/img</file>
+        <file>assets/sound</file>
     </qresource>
 </RCC>
 
