@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
     // this is the preferred deployment option for publishing games to the app stores, because then your qml files and js files are protected
     // to avoid deployment of your qml files and images, also comment the DEPLOYMENTFOLDERS command in the .pro file
     // also see the .pro file for more details
-    //  vplay.setMainQmlFileName(QStringLiteral("qrc:/qml/Main.qml"));
+    vplay.setMainQmlFileName(QStringLiteral("qrc:/qml/Main.qml"));
 
     engine.load(QUrl(vplay.mainQmlFileName()));
 
