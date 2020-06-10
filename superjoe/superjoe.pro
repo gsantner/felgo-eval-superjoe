@@ -17,15 +17,26 @@ PRODUCT_VERSION_CODE = 1
 # Not used if using Felgo Live
 PRODUCT_LICENSE_KEY = ""
 
+# Switch between DEPLOYMENTFOLDERS (qml folder copy) and building with resouces
+DEPLOYMENTFOLDERS_ENABLE = 0
+
 qmlFolder.source = qml
-DEPLOYMENTFOLDERS += qmlFolder # comment for publishing
+equals(DEPLOYMENTFOLDERS_ENABLE, 1) {
+  message(superjoe:: Use deploymentfolder / qml folder copy)
+  DEPLOYMENTFOLDERS += qmlFolder # comment for publishing
+}
 
 assetsFolder.source = assets
-DEPLOYMENTFOLDERS += assetsFolder
+equals(DEPLOYMENTFOLDERS_ENABLE, 1) {
+  DEPLOYMENTFOLDERS += assetsFolder
+}
 
 # Add more folders to ship with the application here
 
-# RESOURCES += resources.qrc # uncomment for publishing
+equals(DEPLOYMENTFOLDERS_ENABLE, 1) {} else {
+  message(superjoe:: Use resources deployment)
+  RESOURCES += resources.qrc # uncomment for publishing
+}
 
 # NOTE: for PUBLISHING, perform the following steps:
 # 1. comment the DEPLOYMENTFOLDERS += qmlFolder line above, to avoid shipping your qml files with the application (instead they get compiled to the app binary)
