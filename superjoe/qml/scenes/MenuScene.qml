@@ -1,6 +1,6 @@
-import VPlay 2.0
 import QtQuick 2.0
 import QtMultimedia 5.0
+import Felgo 3.0
 import "../common" // Relative import - All components inside the ../common folder get available
 
 // A scene based on SceneBase
@@ -21,7 +21,7 @@ SceneBase {
     }
 
     // Show Joe as a boy - or his grown up form
-    Image {
+    AppImage {
         source: GameData.currentDifficulty == "child" ? "../../assets/img/joe-01.png" : "../../assets/img/joe-02.png"
         height: parent.height / 2
         fillMode: Image.PreserveAspectFit
@@ -31,7 +31,7 @@ SceneBase {
     }
 
     // Play sound when menu screen is open
-    SoundEffectVPlay {
+    SoundEffect {
         muted: !menuScene.enabled
         source: Qt.resolvedUrl("../../assets/sound/nature_fire_big.wav")
         loops: SoundEffect.Infinite
