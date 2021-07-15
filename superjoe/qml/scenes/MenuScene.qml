@@ -63,8 +63,14 @@ SceneBase {
         // Sends Main the signal to start specified game
         MenuButton {
             width: parent.width
+            text: "Play Example"
+            onClicked: gameSelected("Game000_Example")
+        }
+
+        MenuButton {
+            width: parent.width
             text: "Play Survival"
-            onClicked: gameSelected("Game000_Example")//"Game001_Fire_Survival")
+            onClicked: gameSelected("Game001_Fire_Survival")
         }
 
         MenuButton {
