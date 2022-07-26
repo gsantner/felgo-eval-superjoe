@@ -5,14 +5,14 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.6.0'
+        classpath "com.android.tools.build:gradle:${androidGradleToolsVersion}"
     }
 }
 
 allprojects {
     repositories {
-        maven { url 'https://maven.google.com' }
-        jcenter()
+        google()
+        mavenCentral()
         maven { url 'https://install.felgo.com/maven/' }
     }
 }
